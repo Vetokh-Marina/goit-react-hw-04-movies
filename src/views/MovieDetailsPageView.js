@@ -11,6 +11,8 @@ import MovieCard from '../components/MovieCard';
 import MovieCast from '../components/MovieCast';
 import MovieReviews from '../components/MovieReviews';
 
+
+
 export default function MovieDetailsPageView() {
     const { path } = useRouteMatch();
     const { movieId } = useParams();
@@ -31,11 +33,11 @@ export default function MovieDetailsPageView() {
 
     return (
         <>
-            <button onClick={handleGoBack} type="button">
+            <button onClick={handleGoBack} type="button" style={{ background: '#3f51b5', padding: '8px 16px', color: '#fff', width: '120px' }}>
                 Back
-      </button>
+        </button>
 
-            {movies && <MovieCard movie={movies} />}
+            { movies && <MovieCard movie={movies} />}
 
             <Route path={`${path}:movieId/cast`}>
                 {movies && <MovieCast id={movieId} />}

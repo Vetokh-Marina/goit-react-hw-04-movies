@@ -1,71 +1,48 @@
-import { useState, useEffect } from 'react';
-import { ToastContainer } from 'react-toastify';
-
-import fetchImagesAPI from './services/imagesServices';
-import Searchbar from './components/Searchbar';
-import ImageGallery from './components/ImageGallery';
-import Button from './components/Button';
+import { lazy, Suspense } from 'react';
+import { Switch, Route } from 'react-router-dom';
+import Container from './components/Container';
+import AppBar from './components/AppBar';
 import Loader from './components/Loader';
 
+const HomePageView = lazy(() =>
+  import('./views/HomePageView' /* webpackChunkName: "HomePageView" */),
+);
+const MoviesPageView = lazy(() =>
+  import('./views/MoviesPageView' /* webpackChunkName: "MoviesPageView" */),
+);
+const NotFoundView = lazy(() =>
+  import('./views/NotFoundView' /* webpackChunkName: "NotFoundView" */),
+);
+const MovieDetailsPageView = lazy(() =>
+  import(
+    './views/MovieDetailsPageView' /* webpackChunkName: "MovieDetailsPageView" */
+  ),
+);
+
 function App() {
-  const [imageName, setImageName] = useState('');
-  const [images, setImages] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    fetchImages();
-  }, [imageName, currentPage]);
-
-  function onChangeQuery(imageName) {
-    setImageName(imageName);
-    setCurrentPage(1);
-    setImages([]);
-    setError(null);
-  }
-
-  function fetchImages() {
-    if (imageName === '') {
-      return;
-    }
-
-    setIsLoading(true);
-
-    fetchImagesAPI({ imageName, currentPage })
-      .then(newImages => {
-        setImages(images => [...images, ...newImages]);
-        scrollPage();
-      })
-      .catch(error => setError(error))
-      .finally(() => setIsLoading(false));
-  }
-
-  const onLoadMoreBtnClick = () => {
-    setCurrentPage(prevState => prevState + 1);
-    scrollPage();
-  };
-
-  const scrollPage = () => {
-    window.scrollTo({
-      top: document.documentElement.scrollHeight,
-      behavior: 'smooth',
-    });
-  };
-
   return (
-    <>
-      {error && <p>Whoops, something went wrong: {error.message}</p>}
-      <Searchbar onSubmit={onChangeQuery} />
-      <ImageGallery images={images} />
-      {isLoading && <Loader />}
+    <Container>
+      <AppBar />
+      <Suspense fallback={<Loader />}>
+        <Switch>
+          <Route path="/" exact>
+            <HomePageView />
+          </Route>
 
-      {!isLoading && images.length >= 12 && !error && (
-        <Button onClick={onLoadMoreBtnClick} />
-      )}
+          <Route path="/movies" exact>
+            <MoviesPageView />
+          </Route>
 
-      <ToastContainer autoClose={3000} />
-    </>
+          <Route path="/movies/:movieId">
+            <MovieDetailsPageView />
+          </Route>
+
+          <Route>
+            <NotFoundView />
+          </Route>
+        </Switch>
+      </Suspense>
+    </Container>
   );
 }
 export default App;

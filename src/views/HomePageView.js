@@ -22,4 +22,3 @@ export default function HomeView() {
         </>
     );
 }
-© 2021 GitHub, Inc.
